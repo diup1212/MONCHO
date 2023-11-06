@@ -1,0 +1,21 @@
+<display>
+    <title> <%= locals.title %> </title>
+
+    <h2> Search </h2>
+
+    <form action = "/result" method = "POST" role = "search">
+        <input type = "search" id = "searchInput" name = "searchBar" placeholder = "What are you looking for?">
+    </form>
+    
+    <h2> Data </h2>
+
+    <ul>
+        <% data.forEach(post => { %>
+        <li>
+            <a href = "/description/<%= post._id %>">
+                <span> <%= post.comictitle %> </span>
+            </a>
+        </li>
+        <% }) %>
+    </ul>
+</display>

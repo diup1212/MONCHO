@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;700&display=swap');  /* Importamos un font de Google fonts :) */
+
+/* 
+    'styles.css' contiene el diseño que es otorgado a todos los elementos que
+    tienen el atributo 'class' en su declaración. 
+
+    Ej: <div class = 'container'>   -   Esto quiere decir que, el diseño añad-
+                                        ido en '.container { ... }', será apl-
+                                        icado al elemento 'div'.
+*/
+
+:root {
+    /*
+        ':root { ... }' contiene variables que pueden ser utilizadas en los style
+        desarrollados en 'styles.css'.
+    */
+
+    --black: #1c1c1c;
+    --font-size-base: 1rem;
+    --font-size-medium: clamp(1.25rem, 0.61vw + 1.1rem, 1.58rem);
+    --font-size-large: clamp(1.56rem, 1vw + 1.31rem, 2.11rem);
+    --font-size-xl: clamp(2.44rem, 2.38vw + 1.85rem, 3.75rem);
+    --border-radius: 10px;
+}
+
+body {
+    font-family: 'Manrope', sans-serif;
+    color: var(--black);
+    font-size: var(--font-size-base);
+    background-color:aliceblue;
+}
+
+.container {
+    max-width: 982px;
+    margin: 0 auto;
+    padding: 0 10px;
+}
+
+.main {
+    padding: 20px 0;
+}
+
+
+.header {
+    display: grid;
+    align-items: center;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    padding-top: 10 px;
+
+    /*
+        'grid-template-areas' nos permite establecer cómo queremos que se acomode
+        el contenido en <header>.
+    */
+
+    grid-template-areas:
+    "logo options"
+}
+
+@media only screen and (min-width: 768px) {
+    .header {
+        grid-template-columns: auto 1fr auto;
+        grid-template-areas:
+        "logo menu";
+    }
+}
+
+.header_logo {
+    /*
+        Para que 'grid-template-areas' reconozca a qué nos referimos cuando escri-
+        bimos 'logo options', tenemos que usar la instrucción 'grid-area' para cr-
+        ear la variable 'logo'.
+    */
+
+    grid-area: logo;
+    font-weight: 800;
+    font-size: 30px;
+    text-decoration: none;
+}
+
+.header_nav {
+    grid-area: menu;
+    display: flex;
+    font-size: 25px;
+    justify-content: center;
+}
+
+.header_nav ul {
+    list-style-type: none;
+    display: flex;
+    gap: 1rem;
+    font-weight: 600;
+    padding: 0;
+}
+
+.header_nav ul a {
+    padding: 10px;
+    text-decoration: none;
+}
