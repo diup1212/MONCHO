@@ -1,0 +1,37 @@
+<!--
+    Este archivo .ejs (Embedded Javascript Templating) llama el código conten-
+    ido en los archivos .ejs de la carpeta '/views/layouts'. Cuando se recibe
+    el código, este se ejecuta, dando diseño a la página.
+
+    NOTA 1 - Si no se entendió .ejs, búsquenlo, hacedores del mal.
+    NOTA 2 - El diseño es provisional. El Frontend team se hará cargo del eso.
+-->
+
+<!DOCTYPE html>
+
+<head>
+    <title> <%= locals.title %> </title>
+
+    <!-- 'Link' permite acceder a 'styles.css', donde esta contenido el diseño de font / color -->
+    <link rel = "stylesheet" href = "/css/styles.css"> 
+
+    <!-- 'Script' permite acceder a 'script.js' -->
+    <script type = "text/Javascript" defer src = "/javascript/script.js"></script>
+</head>
+
+<body>
+    <div class = "container">
+        <!-- 'include' llama y muestra el contenido de 'header.ejs' -->
+        <%- include('../partials/headerlogedin.ejs') %>
+
+        <main class = "main">
+            <!-- 'body' guarda y muestra el diseño que mandemos llamar -->
+            <%- body %>
+        </main>
+
+        <!-- 'include' llama y muestra el contenido de 'footer.ejs' -->
+        <%- include('../partials/footerlogedin.ejs') %>
+    </div>
+</body>
+
+</html>

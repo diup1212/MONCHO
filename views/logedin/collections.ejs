@@ -1,0 +1,21 @@
+<div>
+    <title> <%= locals.title %> </title>
+
+    <h2> Search SIGNED IN </h2>
+
+    <form action = "../logedin/result" method = "POST" role = "search">
+        <input type = "search" id = "searchInput" name = "searchBarLogedIn" placeholder = "What are you looking for?">
+    </form>
+
+    <h2> Collections </h2>
+
+    <ul>
+        <% data.forEach(titles => { %>
+        <li>
+            <a href = "../logedin/description/<%= titles._id %>">
+                <span> <%= titles.Name %> </span>
+            </a>
+        </li>
+        <% }) %>
+    </ul>
+</div>

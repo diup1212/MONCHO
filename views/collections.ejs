@@ -10,10 +10,10 @@
     <h2> Data </h2>
 
     <ul>
-        <% data.forEach(post => { %>
+        <% data.forEach(titles => { %>
         <li>
-            <a href = "/description/<%= post._id %>">
-                <span> <%= post.comictitle %> </span>
+            <a href = "/description/<%= titles._id %>">
+                <span> <%= titles.Name %> </span>
             </a>
         </li>
         <% }) %>

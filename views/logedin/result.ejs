@@ -1,11 +1,11 @@
 <div>
-    <h2> Search Results </h2>
+    <h2> Search Results SIGNED IN</h2>
     
     <div class = "container">
         <ul>
             <% data.forEach(titles => { %>
                 <li>
-                    <a href = "/description/<%= titles._id %>">
+                    <a href = "../logedin/description/<%= titles._id %>">
                         <span> <%= titles.Name %></span>
                     </a>
                 </li>

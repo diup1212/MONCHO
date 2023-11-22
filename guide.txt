@@ -1,0 +1,146 @@
+
+    PARA CORRER EL PROGRAMA .... - node app.js
+    PARA ACCEDER AL PROGRAMA ... - localhost:8000
+
+    /*          */ /* INTRODUCCION */ /*          */
+
+    Hola. Esta guía fue escrita con la intención de explicar para qué sirve cada archivo en este proyecto. Intentaré ser lo más descriptivo posible
+    para que no queden dudas respecto a dónde programar las funciones que quedan por hacer.
+
+    Igualmente: si quedan dudas, por favor preguntenme. Con mucho gusto los puedo ayudar para sacar adelante el proyecto.
+
+    ================================================================================================================================================
+
+    /*          */ /* DESCARGAS */ /*          */
+
+    Necesitan instalar lo siguiente para que pueda funcionar el proyecto corriendo:
+
+        -> 'NodeJS' ........... - https://nodejs.org/en
+        -> 'MongoDBCompass' ... - https://www.mongodb.com/try/download/compass
+        -> 'ejs' .............. - cmd : npm install ejs (en 'Extensions', descargar 'EJS language support')
+        -> 'bcrypt' ........... - cmd : npm install bcrypt 
+        -> 'gyp' .............. - cmd : npm install -g node-gyp
+
+    ================================================================================================================================================
+
+    /*          */ /* CARPETAS */ /*          */
+
+    Hay cuatro carpetas que contienen distintos archivos con distintas extensiones que, en conjunto, permiten que funcione el proyecto 
+    al ingresar a la terminal 'node app.js'. Estas carpetas son las siguientes:
+    
+        -> 'public' - contiene todo aquello relacionado al diseño de la página.
+            
+            /css .......... Proporciona al proyecto el diseño y estructura.
+            /images ....... No se ha usado aún. (Frontend)
+            /javascript ... No se ha usado aún. (Frontend)
+
+        -> 'server' - contiene todo aquello relacionado al funcionamiento del servidor.
+
+            /config/database.js ... Conecta el proyecto a la base de datos en MongoDB. (La URI la obtiene de '.env')
+            /models/'...' ......... Son plantillas que deben coincidir con la estructura declarada en los modelos de la base de datos.
+            /routes/main.js ....... Contiene las rutas de la página cuando no se ha iniciado sesión.
+            /routes/logedin.in .... Contiene las rutas de la página cuando se ha iniciado sesión.
+
+        -> 'views' - contiene todo aquello relacionado a cómo se ve la página.
+
+            /views/'...' ............ Muestra el diseño de cómo luce cada ruta al inicializar el proyecto.
+            /views/layouts/'...' .... Muestra la estructura en la que se imprimirán las cosas en la página web.
+            /views/logedin/'...' .... Muestra el diseño de cómo luce cada ruta al inicializar el proyecto.
+            /views/partials/'...' ... Muestra el diseño de cómo luce cada ruta al inicializar el proyecto.
+
+        -> '.env' - guarda la URI de la base de datos en MongoDB. (No modificar)
+
+        -> 'app.js' - contiene las configuraciones para que podamos ejecutar el proyecto.
+
+    ================================================================================================================================================
+
+    /*          */ /* PROGRAMAR LO BASICO */ /*          */
+
+    -> 'Crear ruta' - Para generar una ruta, debemos saltar entre archivo y archivo para lograr conseguir nuestro objetivo. A continuación
+        listaré los pasos para que puedan hacer una ruta sencilla.
+
+            1.  Programar ruta - en '/server/routes/logedin.js' ó 'main.js' debemos programar el siguiente método:
+
+                    router.get('', (req, res) => {
+                        const locals = {
+                            title: "Home Page"
+                        }
+
+                        res.render('index', { locals });
+                    });
+
+                En 'router.get('' ... ), adentro de las comillas definimos el nombre de la ruta que queremos crear. Si nosotros hicieramos, por
+                ejemplo: 'router.get('/home' ... )', entonces estamos diciendo que, cuando se escriba 'localhost:8000/home', vamos a dirigirnos a
+                todo la ruta 'home'.
+
+            2.  Programar el diseño - en 'res.render('index', ...)', estamos indicando que, cuando estemos en la ruta 'home', vamos a renderizar 
+                'index'. Esto significa que, el diseño en HTML que se halla en 'index' va a mostrarse para la ruta 'home'.
+
+                Aplicando lo anterior al ejemplo de 'router.get('/home' ... )', debemos primero crear un archivo llamado 'home' (o el nombre que
+                quieran ponerle), y debemos crearlo con la extensión '.ejs'. Cuando hayamos hecho eso, podemos agregar a 'home.ejs' una oración
+                como, por ejemplo: 'Home page'. Hecho eso, debemos renderizar la página. Esto lo hacemos de la siguiente manera: 
+                'res.render('home', ...)'. Si hacemos todo esto, entonces si escribimos 'localhost:8000/home', seremos dirigidos a la ruta 'home'
+                y se mostrará el diseño contenido en 'home.ejs'
+
+    ->  'Obtener datos de la Base de Datos' - Para obtener datos de la base de datos, también debemos saltar entre varios archivos. A continuación
+        listaré pasos para que sepan cómo obtener datos de la base de datos:
+
+            1.  Crear un modelo - si queremos incluir, por ejemplo, una colección nueva a nuestra base de datos, debemos crear un modelo en la dirección
+                '/server/models'. 
+                
+                Supongamos que la colleción que queremos hacer es 'fridge'. Esta será una colleción que guarde productos que van en un congelador, 
+                como, por ejemplo: verduras, frutas, bebidas, etcétera. Para hacer esto, debemos crear 'frige.js' y el contenido de este archivo serán
+                los campos donde irán todos los datos. Esto sería así:
+
+                    const FridgeSchema = new Schema ({
+                        Fruits: {
+                            type: String,
+                            required: true
+                        },
+                        Vegetables: {
+                            type: String,
+                            required: true
+                        },
+                        Liquids: {
+                            type: String,
+                            required: true
+                        }
+                    })
+                
+                Donde 'Fruits: { ... }' será el apartado donde guardaremos todos los datos de frutas. Para subir esta tabla a la base de datos, debemos
+                correr 'node app.js' para que se acutalice la base de datos.
+
+            2.  Crear una ruta - Para obtener los datos de la base de datos, tenemos que hacer una ruta en 'main.js' que se vea igual a esta:
+
+                    router.get('/collections', async(req, res) => {
+                        try {
+                            const locals = {
+                                title: "Collections"
+                            }
+                        
+                            const data = await Titles.find();
+                            res.render('collections', { data, locals });
+                        } catch(error) {
+                            console.log(error);
+                        }
+                    });
+
+                Donde 'const data = await Titles.find();' es una variable a la que estamos diciendole que, mientras no encuentra valores qué mostrar,
+                espere. 
+                
+                Aplicado a nuestro ejemplo de 'fridge.js', primero debemos importar el modelo de 'fridge.js' a 'main.js'. Esto lo hacemos de la siguiente
+                manera 'const Fridge = require('../models/fridge)'. Una vez exportado el modelo, debemos hacer lo siguiente:
+                'const data = await Fridge.find();'. Aquí estamos indicando que, del modelo exportado 'Fridge', vamos a buscar los datos contenidos
+                en la colleción de 'Fridge'.
+
+            3.  Imprimir los datos en HTML - supongamos que queremos imprimir los datos en 'home'. Para hacer esto, en el archivo 'home.ejs', debemos
+                agregar 'ejsout -> <%= Fridge.Fruits %>', esta instrucción dice que, de la data que está mandandose de 'main.js', vas a imprimir el contenido
+                de la tabla 'Fridge' la sección de 'Fruits'.
+
+                Para tener una mejor referencia, vean ... : '/models/titles', '/routes/main.js - línea 59', '/views/collections'
+
+    ================================================================================================================================================
+
+    Si tienen dudas sobre algo, como dije al inicio: Preguntenme, por favor. 
+
+
