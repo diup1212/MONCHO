@@ -23,8 +23,11 @@ const UsersSchema = new Schema ({
     Favorite_Comics: {
         type: [String]
     },
-    Suscription: {
+    isActive: {
         type: Boolean
+    },
+    role: {
+        type: String
     },
     Date_of_Birth: {
         type: String,
