@@ -9,9 +9,12 @@ const MongoStore = require('connect-mongo')
 
 
 const connectDB = require('./server/config/database')
+const auth = require('./server/routes/auth');  // Include the 'auth' module
 
 const app = express();
-const port = 8000 || process.env.port;    //  'port = 8000' es la instrucción que asigna dónde se mostrará el contenido del proyecto...
+//const port = 8000 || process.env.port;
+const port = process.env.PORT || 8000;
+    //  'port = 8000' es la instrucción que asigna dónde se mostrará el contenido del proyecto...
 
 connectDB();
 
@@ -37,6 +40,10 @@ app.set('view engine', 'ejs');
 
 app.use('/', require('./server/routes/main'));    // en esta línea especificamos que el contenido de las páginas sea obtenido de 'server/routes/main'...
 app.use('/', require('./server/routes/logedin'));
+
+//log out the user
+//const logoutRouter = require('./server/routes/logout');
+
 
 app.listen(port, () => {
     console.log(`App listening on port ${ port }`)

@@ -6,11 +6,12 @@
     ible para el usuario, etcétera...
 */
 
-const express = require('express');
-const router = express.Router();
+const router = require("express").Router();
+const bcrypt = require("bcrypt");
+//const auth = require("./auth");
+//const db = require("../config/database");
 
 // MODELOS
-
 const Authors = require('../models/Authors')
 const Characters = require('../models/Characters')
 const Issues = require('../models/Issues')
@@ -19,7 +20,7 @@ const Titles = require('../models/Titles')
 const Users = require('../models/Users')
 const Volumes = require('../models/Volumes')
 
-const bcrypt = require('bcrypt');
+
 const jwt  = require('jsonwebtoken');   
 
 const jwtSecret  = process.env.JWT_SECRET;
@@ -247,6 +248,7 @@ router.get('/users', async(req, res) => {
     * POST * USERS * PERMITE USAR CUENTA *
 */
 
+
 router.post('/login', async(req, res) => {
     try {
         const { Username, Password } = req.body;
@@ -272,6 +274,50 @@ router.post('/login', async(req, res) => {
 }); 
 
 /*
+router.post("/auth/login", (req, res) => {
+    const { Email, Password } = req.body;
+    const query = { Email };
+  
+    db.getDb
+      .collection("users")
+      .findOne(query, async (err, result) => {
+        if (err) {
+          console.log(err);
+          return res.status(400).json({ message: "Error: Could not get user details" });
+        }
+  
+        // No record found for the given emailId
+        if (!result) {
+          return res.status(401).json({ message: "Incorrect Credentials" });
+        }
+  
+        //User found
+        const hashedPassword = result.password;
+        let isPasswordCorrect;
+  
+        try {
+          isPasswordCorrect = await bcrypt.compare(password, hashedPassword);
+          console.log(isPasswordCorrect);
+        } catch (errBcrypt) {
+          console.log(errBcrypt);
+          return res.status(400).json({ message: "Error: Could not get user password" });
+        }
+  
+        // Wrong password given
+        if (!isPasswordCorrect) {
+          return res.status(401).json({ message: "Incorrect Credentials" });
+        }
+  
+        //User authenticated
+        const user = result;
+        delete user.password;
+  
+        const token = auth.issueToken(user);
+        return res.status(200).json({ ...user, token });
+      });
+  });
+  */
+/*
     * GET * USERS * DIRIGE A PAGINA DE REGISTRO *
 */
 
@@ -291,13 +337,36 @@ router.get('/createaccount', async(req, res) => {
     * POST * USERS * PERMITE CREAR CUENTA *
 */
 
-router.post('/register', async(req, res) => {
+/* Add A New User */
+/* 
+router.post("/register", (req, res) => {
+    const { Email, Password, role, Username } = req.body;
+  
+    bcrypt.hash(Password, 10).then(function (hashedPassword) {
+       const insertData = { Username, Email, Password: hashedPassword, role, isActive: false };
+      db.getDb()
+        .collection("users")
+        .insertOne(insertData, (err, result) => {
+          if (err) {
+            console.log(err);
+            return res.status(400).json({ message: "Error: Could not add user" });
+          }
+  
+          const newUser = { _id: result.insertedId, Email, Username, role };
+          const token = auth.issueToken(newUser);
+          res.status(200).json({ ...newUser, token });
+          res.redirect('/users');
+        });
+    });
+  });
+  */
+  router.post('/register', async(req, res) => {
     try {
-        const { Email, Username, Password, Date_of_Birth } = req.body;
+        const { Email, Username, Password, Date_of_Birth, accountType} = req.body;
         const hashedPassword = await bcrypt.hash(Password, 10);
 
         try {
-            const user = await Users.create({ Email, Username, Password: hashedPassword, Date_of_Birth });
+            const user = await Users.create({ Email, Username, Password: hashedPassword, Date_of_Birth, role: accountType });
             res.redirect('/users');
         } catch(error) {
             if(error.code === 11000) {
@@ -351,5 +420,16 @@ router.get('/bio/:id', async(req, res) => {
 /*
     * COOKIE * MANTENER USUARIO AL INGESRESAR
 */
+/*
+    * Log out the user
+*/
+// routes/logout.js
+router.get('/logout', function(req, res){
+    // Invalidate the token
+    // This depends on how you handle tokens
+    // For example, if you're using JWT and storing it in a cookie:
+    res.clearCookie('token');
+    res.json({ success: true });
+ });
 
 module.exports = router;
