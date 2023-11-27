@@ -83,23 +83,6 @@ router.get('/collections/:id', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
-//hacerlo
-router.get('/collectionstags/:id', async (req, res) => {
-    const volumeid = req.params.id;
-
-    try {
-        const volume = await Volumes.findById(volumeid);
-        
-        if (!volume) {
-            return res.status(404).json({ error: 'Volume not found' });
-        }
-
-        res.json(volume);
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
 /*
     * GET * VOLUMES * MUESTRA CONTENIDO DISPONIBLE *
 */
@@ -131,23 +114,6 @@ router.get('/volumes/:id', async (req, res) => {
     }
 });
 
-//no esta hecho
-router.get('/volumetags/:id', async (req, res) => {
-    const volumeid = req.params.id;
-
-    try {
-        const volume = await Volumes.findById(volumeid);
-        
-        if (!volume) {
-            return res.status(404).json({ error: 'Volume not found' });
-        }
-
-        res.json(volume);
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
 /*
     * GET * ISSUES * MUESTRA CONTENIDO DISPONIBLE *
 */
