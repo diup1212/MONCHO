@@ -4,7 +4,9 @@ const express = require('express');
 const expressLayout = require('express-ejs-layouts');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
+const cors=require('cors');
 const MongoStore = require('connect-mongo')
+
 
 const connectDB = require('./server/config/database')
 
@@ -16,6 +18,7 @@ connectDB();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors());
 
 app.use(session({
     secret: 'keyboard cat',

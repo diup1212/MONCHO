@@ -56,34 +56,155 @@ router.get('', (req, res) => {
     * GET * COLLECTIONS * MUESTRA CONTENIDO DISPONIBLE *
 */
 
-router.get('/collections', async(req, res) => {
+router.get('/collections', async (req, res) => {
     try {
-        const locals = {
-            title: "Collections"
-        }
-    
         const data = await Titles.find();
-        res.render('collections', { data, locals });
+        res.json(data); // Enviar datos como respuesta JSON
     } catch(error) {
         console.log(error);
+        res.status(500).json({ error: 'Internal Server Error' }); // Manejar errores y enviar respuesta JSON con un código de estado 500
     }
 });
 
+router.get('/collections/:id', async (req, res) => {
+    const collectionId = req.params.id;
+
+    try {
+        const collection = await Titles.findById(collectionId);
+        
+        if (!collection) {
+            return res.status(404).json({ error: 'Collection not found' });
+        }
+
+        res.json(collection);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+//hacerlo
+router.get('/collectionstags/:id', async (req, res) => {
+    const volumeid = req.params.id;
+
+    try {
+        const volume = await Volumes.findById(volumeid);
+        
+        if (!volume) {
+            return res.status(404).json({ error: 'Volume not found' });
+        }
+
+        res.json(volume);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 /*
-    * GET * DESCRIPTION * MUESTRA LA DESCRIPCION DE COMIC *
+    * GET * VOLUMES * MUESTRA CONTENIDO DISPONIBLE *
 */
 
-router.get('/description/:id', async(req, res) => {
+router.get('/volumes', async (req, res) => {
     try {
-        let slug = req.params.id;
-
-        const data = await Titles.findById({ _id: slug });
-
-        res.render("description", { data });
+        const data = await Volumes.find();
+        res.json(data);
     } catch(error) {
         console.log(error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+router.get('/volumes/:id', async (req, res) => {
+    const volumeid = req.params.id;
+
+    try {
+        const volume = await Volumes.findById(volumeid);
+        
+        if (!volume) {
+            return res.status(404).json({ error: 'Volume not found' });
+        }
+
+        res.json(volume);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+//no esta hecho
+router.get('/volumetags/:id', async (req, res) => {
+    const volumeid = req.params.id;
+
+    try {
+        const volume = await Volumes.findById(volumeid);
+        
+        if (!volume) {
+            return res.status(404).json({ error: 'Volume not found' });
+        }
+
+        res.json(volume);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+/*
+    * GET * ISSUES * MUESTRA CONTENIDO DISPONIBLE *
+*/
+
+router.get('/issues', async (req, res) => {
+    try {
+        const data = await Issues.find();
+        res.json(data);
+    } catch(error) {
+        console.log(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+router.get('/issues/:id', async (req, res) => {
+    const issueid = req.params.id;
+
+    try {
+        const issue = await Issues.findById(issueid);
+        
+        if (!issue) {
+            return res.status(404).json({ error: 'Issue not found' });
+        }
+
+        res.json(issue);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+router.get('/authors', async (req, res) => {
+    try {
+        const data = await Authors.find();
+        res.json(data); 
+    } catch(error) {
+        console.log(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+router.get('/authors/:id', async (req, res) => {
+    const id = req.params.id;
+
+    try {
+        const author = await Authors.findById(id);
+        
+        if (!author) {
+            return res.status(404).json({ error: 'Author not found' });
+        }
+
+        res.json(author);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 
 /*
     * POST * RESULTS * MUESTRA RESULTADO DE BUSQUEDA *
