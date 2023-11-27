@@ -221,23 +221,32 @@ router.post('/login', async(req, res) => {
 
         const user = await Users.findOne({ Username });
 
-        if(!user) {
+        if (!user) {
             return res.status(401).json({ message: 'Invalid Credentials!' });
         }
 
         const isPasswordValid = await bcrypt.compare(Password, user.Password);
 
-        if(!isPasswordValid) {
+        if (!isPasswordValid) {
             return res.status(401).json({ message: 'Invalid Credentials!' });
         }
 
-        const token = jwt.sign({ userId: Users._id}, jwtSecret)
+        const token = jwt.sign({ userId: user._id }, jwtSecret); // Ensure to use 'user._id' not 'Users._id'
         res.cookie('token', token, { httpOnly: true });
-        res.redirect('/logedin/homepage')
-    } catch(error) {
-        console.log(error);
+
+        // If you're using a SPA and managing state on the client, you might just want to send the token back
+        // res.json({ token: token });
+
+        // For server-rendered pages
+        res.status(200).json({message: 'log in succesful'})
+    } catch (error) {
+        // Log error - consider using a more robust logging solution for production
+        console.error(error);
+
+        // Send a generic error message to the client
+        res.status(500).json({ message: 'An error occurred on the server.' });
     }
-}); 
+});
 
 /*
 router.post("/auth/login", (req, res) => {
@@ -333,7 +342,7 @@ router.post("/register", (req, res) => {
 
         try {
             const user = await Users.create({ Email, Username, Password: hashedPassword, Date_of_Birth, role: accountType });
-            res.redirect('/users');
+            res.status(200).json({message:'User created succesfully'});
         } catch(error) {
             if(error.code === 11000) {
                 res.status(409).json({ message: 'User Already Created!' });

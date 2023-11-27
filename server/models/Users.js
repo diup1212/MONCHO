@@ -31,7 +31,6 @@ const UsersSchema = new Schema ({
     },
     Date_of_Birth: {
         type: String,
-        required: true
     }
 })
 
