@@ -193,6 +193,31 @@ router.post('/result', async(req, res) => {
     }
 });
 
+// SEARCH
+router.get('/search', async (req, res) => {
+    try {
+      const { query } = req.query;
+    
+      // Utilizamos expresiones regulares para realizar una búsqueda insensible a mayúsculas y minúsculas
+      const issuesResults = await Issues.find({
+        $or: [
+          { Issue_Name: { $regex: new RegExp(query, 'i') } },
+          { Description: { $regex: new RegExp(query, 'i') } },
+        ],
+      });
+  
+      // Extraer solo los IDs de los resultados
+      const combinedResults = issuesResults.map(issue => issue._id);
+    
+      res.json({
+        results: combinedResults,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+
 /*
     * GET * USERS * MUESTRA CREAR / USAR CUENTA *
 */
