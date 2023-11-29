@@ -26,33 +26,6 @@ const jwt  = require('jsonwebtoken');
 const jwtSecret  = process.env.JWT_SECRET;
 
 
-
-// RUTAS
-
-/*
-    En esta sección es donde definimos cuáles rutas tendrá nuestro sitio web. La manera en la que fue-
-    ron definidas es la siguiente:
-
-    router.get('<Aquí debe ir el nombre de la ruta>')...
-    res.render('<Aquí debe ir el nombre del archivo .ejs'>)...
-
-    La instrucción 'render', como dice el nombre: renderiza el código hallado en el .ejs 
-*/
-
-
-
-/*
-    * GET * HOME PAGE * MUESTRA INICIO *
-*/
-
-router.get('', (req, res) => {
-    const locals = {
-        title: "Home Page"
-    }
-
-    res.render('index', { locals });
-});
-
 /*
     * GET * COLLECTIONS * MUESTRA CONTENIDO DISPONIBLE *
 */
@@ -60,10 +33,10 @@ router.get('', (req, res) => {
 router.get('/collections', async (req, res) => {
     try {
         const data = await Titles.find();
-        res.json(data); // Enviar datos como respuesta JSON
+        res.json(data);
     } catch(error) {
         console.log(error);
-        res.status(500).json({ error: 'Internal Server Error' }); // Manejar errores y enviar respuesta JSON con un código de estado 500
+        res.status(500).json({ error: 'Internal Server Error' }); 
     }
 });
 
@@ -173,32 +146,12 @@ router.get('/authors/:id', async (req, res) => {
 });
 
 
-/*
-    * POST * RESULTS * MUESTRA RESULTADO DE BUSQUEDA *
-*/
-
-router.post('/result', async(req, res) => {
-    try {
-        let searchTerm = req.body.searchBar
-        const searchNoSpecialCharacter = searchTerm.replace(/[^a-zA-Z0-9 ]/g, "");
-
-        const data = await Titles.find({
-            $or: [
-                { Name: { $regex: new RegExp(searchNoSpecialCharacter, 'i') }}
-            ]
-        });
-        res.render("result", { data });
-    } catch(error) {
-        console.log(error);
-    }
-});
-
 // SEARCH
 router.get('/search', async (req, res) => {
     try {
       const { query } = req.query;
     
-      // Utilizamos expresiones regulares para realizar una búsqueda insensible a mayúsculas y minúsculas
+      // búsqueda insensible a mayúsculas y minúsculas
       const issuesResults = await Issues.find({
         $or: [
           { Issue_Name: { $regex: new RegExp(query, 'i') } },
@@ -206,7 +159,7 @@ router.get('/search', async (req, res) => {
         ],
       });
   
-      // Extraer solo los IDs de los resultados
+      // solo los IDs de los resultados
       const combinedResults = issuesResults.map(issue => issue._id);
     
       res.json({
@@ -218,22 +171,7 @@ router.get('/search', async (req, res) => {
     }
   });
 
-/*
-    * GET * USERS * MUESTRA CREAR / USAR CUENTA *
-*/
 
-router.get('/users', async(req, res) => {
-    try {
-        const locals = {
-            title: "Users"
-        }
-    
-        const data = await Users.find();
-        res.render('users', { data, locals });
-    } catch(error) {
-        console.log(error);
-    }
-});
 
 /*
     * POST * USERS * PERMITE USAR CUENTA *
@@ -251,115 +189,32 @@ router.post('/login', async(req, res) => {
         }
 
         const isPasswordValid = await bcrypt.compare(Password, user.Password);
-
         if (!isPasswordValid) {
             return res.status(401).json({ message: 'Invalid Credentials!' });
         }
 
-        const token = jwt.sign({ userId: user._id }, jwtSecret); // Ensure to use 'user._id' not 'Users._id'
-        res.cookie('token', token, { httpOnly: true });
+        const token = jwt.sign({ 
+            userId: user._id,
+            username: user.Username,
+            email: user.Email,
+            favs: user.Favorite_Comics,
+            role: user.role }, jwtSecret); //datos de usuario q necesitaré
+        res.cookie('token', token);
 
-        // If you're using a SPA and managing state on the client, you might just want to send the token back
-        // res.json({ token: token });
-
-        // For server-rendered pages
-        res.status(200).json({message: 'log in succesful'})
+        
+        res.status(200).json({ message: 'Log in successful', token: token });
     } catch (error) {
-        // Log error - consider using a more robust logging solution for production
         console.error(error);
 
-        // Send a generic error message to the client
         res.status(500).json({ message: 'An error occurred on the server.' });
     }
 });
 
-/*
-router.post("/auth/login", (req, res) => {
-    const { Email, Password } = req.body;
-    const query = { Email };
-  
-    db.getDb
-      .collection("users")
-      .findOne(query, async (err, result) => {
-        if (err) {
-          console.log(err);
-          return res.status(400).json({ message: "Error: Could not get user details" });
-        }
-  
-        // No record found for the given emailId
-        if (!result) {
-          return res.status(401).json({ message: "Incorrect Credentials" });
-        }
-  
-        //User found
-        const hashedPassword = result.password;
-        let isPasswordCorrect;
-  
-        try {
-          isPasswordCorrect = await bcrypt.compare(password, hashedPassword);
-          console.log(isPasswordCorrect);
-        } catch (errBcrypt) {
-          console.log(errBcrypt);
-          return res.status(400).json({ message: "Error: Could not get user password" });
-        }
-  
-        // Wrong password given
-        if (!isPasswordCorrect) {
-          return res.status(401).json({ message: "Incorrect Credentials" });
-        }
-  
-        //User authenticated
-        const user = result;
-        delete user.password;
-  
-        const token = auth.issueToken(user);
-        return res.status(200).json({ ...user, token });
-      });
-  });
-  */
-/*
-    * GET * USERS * DIRIGE A PAGINA DE REGISTRO *
-*/
-
-router.get('/createaccount', async(req, res) => {
-    try {
-        const locals = {
-            title: "Create Account"
-        }
-
-        res.render('createaccount', { locals })
-    } catch(error) {
-        console.log(error);
-    }
-});
 
 /*
     * POST * USERS * PERMITE CREAR CUENTA *
 */
 
-/* Add A New User */
-/* 
-router.post("/register", (req, res) => {
-    const { Email, Password, role, Username } = req.body;
-  
-    bcrypt.hash(Password, 10).then(function (hashedPassword) {
-       const insertData = { Username, Email, Password: hashedPassword, role, isActive: false };
-      db.getDb()
-        .collection("users")
-        .insertOne(insertData, (err, result) => {
-          if (err) {
-            console.log(err);
-            return res.status(400).json({ message: "Error: Could not add user" });
-          }
-  
-          const newUser = { _id: result.insertedId, Email, Username, role };
-          const token = auth.issueToken(newUser);
-          res.status(200).json({ ...newUser, token });
-          res.redirect('/users');
-        });
-    });
-  });
-  */
   router.post('/register', async(req, res) => {
     try {
         const { Email, Username, Password, Date_of_Birth, accountType} = req.body;
@@ -378,58 +233,5 @@ router.post("/register", (req, res) => {
         console.log(error);
     }
 });
-
-
-/*
-    * GET * AUTHORS * MUESTRA LOS AUTORES *
-*/
-
-router.get('/authors', async(req, res) => {
-    try {
-        const locals = {
-            title: "Home Page"
-        }
-
-        const data = await Authors.find();
-        res.render('authors', { data, locals })
-    } catch(error) {
-        console.log(error);
-    }
-});
-
-/*
-    * GET * AUTHORS * MUESTRA LA BIOGRAFIA DEL AUTOR *
-*/
-
-router.get('/bio/:id', async(req, res) => {
-    try {
-        let slug = req.params.id;
-
-        const data = await Authors.findById({ _id: slug });
-
-        res.render("bio", { data });
-    } catch(error) {
-        console.log(error);
-    }
-});
-
-
-
-//  METODOS
-
-/*
-    * COOKIE * MANTENER USUARIO AL INGESRESAR
-*/
-/*
-    * Log out the user
-*/
-// routes/logout.js
-router.get('/logout', function(req, res){
-    // Invalidate the token
-    // This depends on how you handle tokens
-    // For example, if you're using JWT and storing it in a cookie:
-    res.clearCookie('token');
-    res.json({ success: true });
- });
 
 module.exports = router;

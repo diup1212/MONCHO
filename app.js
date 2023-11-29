@@ -36,13 +36,9 @@ app.use(express.static('public'));
 
 app.use(expressLayout);
 app.set('layout', './layouts/main');
-app.set('view engine', 'ejs');
 
-app.use('/', require('./server/routes/main'));    // en esta línea especificamos que el contenido de las páginas sea obtenido de 'server/routes/main'...
-app.use('/', require('./server/routes/logedin'));
+app.use('/', require('./server/routes/main'));   
 
-//log out the user
-//const logoutRouter = require('./server/routes/logout');
 
 
 app.listen(port, () => {
