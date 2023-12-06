@@ -210,27 +210,128 @@ router.post('/login', async(req, res) => {
     }
 });
 
+/*
+    FAVORITE ISSUES
+*/
+// Ruta para agregar un issue a favoritos
+router.post('/users/token/:token/favorites/add', async (req, res) => {
+    const { token } = req.params;
+    const { issueId } = req.body;
+  
+    try {
+        const decodedToken = jwt.verify(token, jwtSecret); 
+        const userId = decodedToken.userId;
+  
+        const user = await Users.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado.' });
+        }
+    
+        const issue = await Issues.findById(issueId);
+        if (!issue) {
+            return res.status(404).json({ message: 'Issue no encontrado.' });
+        }
+    
+        if (user.Favorite_Comics.includes(issueId)) {
+            return res.status(400).json({ message: 'El issue ya está en favoritos.' });
+        }
+    
+        user.Favorite_Comics.push(issueId);
+        await user.save();
+    
+        res.status(200).json({ message: 'Issue agregado a favoritos correctamente.' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Error en el servidor.' });
+    }
+  });
+  
+  // Ruta para quitar un issue de favoritos
+  router.post('/users/token/:token/favorites/remove', async (req, res) => {
+    const { token } = req.params;
+    const { issueId } = req.body;
+  
+    try {
+        const decodedToken = jwt.verify(token, jwtSecret);
+        const userId = decodedToken.userId;
+      
+        const user = await Users.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado.' });
+        }
+    
+        const issue = await Issues.findById(issueId);
+        if (!issue) {
+            return res.status(404).json({ message: 'Issue no encontrado.' });
+        }
+    
+        if (!user.Favorite_Comics.includes(issueId)) {
+            return res.status(400).json({ message: 'El issue no está en favoritos.' });
+        }
+        user.Favorite_Comics = user.Favorite_Comics.filter((fav) => fav !== issueId);
+        await user.save();
+        res.status(200).json({ message: 'Issue quitado de favoritos correctamente.' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Error en el servidor.' });
+    }
+  });
+
+  router.get('/users/token/:token/favorites', async (req, res) => {
+    const { token } = req.params;
+  
+    try {
+        const decodedToken = jwt.verify(token, jwtSecret);
+        const userId = decodedToken.userId;
+  
+        const user = await Users.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado.' });
+        }
+    
+        
+        const favoriteComicIds = user.Favorite_Comics.map(String);
+        res.status(200).json(favoriteComicIds);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Error en el servidor.' });
+    }
+  });
+  
+  
 
 /*
     * POST * USERS * PERMITE CREAR CUENTA *
 */
 
-  router.post('/register', async(req, res) => {
+router.post('/register', async (req, res) => {
     try {
-        const { Email, Username, Password, Date_of_Birth, accountType} = req.body;
+        const { Email, Username, Password, Date_of_Birth, accountType } = req.body;
         const hashedPassword = await bcrypt.hash(Password, 10);
 
         try {
             const user = await Users.create({ Email, Username, Password: hashedPassword, Date_of_Birth, role: accountType });
-            res.status(200).json({message:'User created succesfully'});
-        } catch(error) {
-            if(error.code === 11000) {
+
+
+            const token = jwt.sign({
+                userId: user._id,
+                username: user.Username,
+                email: user.Email,
+                favs: user.Favorite_Comics,
+                role: user.role
+            }, jwtSecret);
+
+            res.cookie('token', token, { httpOnly: true, secure: true });
+            res.status(200).json({ message: 'User created successfully', token: token });
+        } catch (error) {
+            if (error.code === 11000) {
                 res.status(409).json({ message: 'User Already Created!' });
             }
             res.status(500).json({ message: 'Internal Server Error', error: error.message });
         }
-    } catch(error) {
+    } catch (error) {
         console.log(error);
+        res.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
 });
 
